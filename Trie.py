@@ -7,18 +7,20 @@ class _TrieNode(object):
             global node
             self.word = False
             self.end = True
-            self.node = np.empty(26, dtype=object)
+            self.node = {}
 
-        def contains(self, index):
-            return self.node[index]!=None
+        def contains(self, char):
+            return self.node.get(char)!=None
 
-        def add(self, index):
+        def add(self, char):
             self.end = False
             newNode = self.__class__()
-            self.node[index] = newNode
+            self.node[char] = newNode
 
-        def get(self, index):
-            return self.node[index]
+        def get(self, char):
+            if(not self.contains(char)):
+                return -1
+            return self.node[char]
 
         def isEnd(self):
             return self.end
@@ -36,17 +38,18 @@ class Trie(object):
 
 	def __recursiveAdd(self, node, word):
             if(len(word)!=0):
-                index = ord(word[0])-65
-                if(not node.contains(index)):
+                char = word[0]
+                if(not node.contains(char)):
                     if(len(word)==1):
-                        node.add(index)
+                        node.add(char)
                     else:
-                        node.add(index)
-                self.__recursiveAdd(node.get(index), word[1:len(word)])
+                        node.add(char)
+                self.__recursiveAdd(node.get(char), word[1:len(word)])
             else:
                 node.setWord()
 
 	def add(self, word):
+            word = word.upper()
             if(word!=""):
                 self.__recursiveAdd(self.root, word)
 
@@ -54,14 +57,15 @@ class Trie(object):
 	def __recursiveContains(self, node,word):
             if(len(word)==0):
                     return True
-            index = ord(word[0])-65
-            if(not node.contains(index)):
+            char = word[0]
+            if(not node.contains(char)):
                     return False
-            return self.__recursiveContains(node.get(index), word[1:len(word)])
+            return self.__recursiveContains(node.get(char), word[1:len(word)])
 
 
 
 	def contains(self, word):
+            word = word.upper()
             if(word==""):
                 return False
             return self.__recursiveContains(self.root,word)
@@ -74,13 +78,13 @@ class Trie(object):
             return self.__isWord(self.root,word)
 
         def __isWord(self, node, word):
-            index = ord(word[0]-65
-            if(not node.contains(index)):
+            char = word[0]
+            if(not node.contains(char)):
                 return False
             if(len(word)==0):
                 return node.isWord()
             else:
-                return self.__isWord(node.get(index), word[1:len(word)])
+                return self.__isWord(node.get(char), word[1:len(word)])
 
 	def __wordStatus(self, node, word):
             if(len(word)==0):
@@ -93,9 +97,9 @@ class Trie(object):
                 else:
                     #not word but possible
                     return 1
-            index = ord(word[0])-65
-            if(not node.contains(index)):
+            char = word[0]
+            if(not node.contains(char)):
                 #do not cont7iue
                 return 0
-            return self.__wordStatus(node.get(index), word[1:len(word)])
+            return self.__wordStatus(node.get(char), word[1:len(word)])
 
