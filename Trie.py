@@ -71,6 +71,17 @@ class Trie(object):
 	def wordStatus(self, word):
 		return self.__wordStatus(self.root,word)
 
+        def isWord(self, word):
+                return self.__isWord(self.root,word)
+
+        def __isWord(self, node, word):
+                index = ord(word[0]-65
+                if(not node.contains(index)):
+                    return False
+                if(len(word)==0):
+                    return node.isWord()
+                else:
+                    return self.__isWord(node.get(index), word[1:len(word)])
 
 	def __wordStatus(self, node, word):
 		if(len(word)==0):
