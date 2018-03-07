@@ -1,60 +1,108 @@
-import numpy as np
-
 class _TrieNode(object):
 
-
-        def __init__(self):
-            global node
+        def __init__(self,char):
+            global children
             self.word = False
             self.end = True
-            self.node = {}
+            self.char = char
+            self.children = {}
 
         def contains(self, char):
-            return self.node.get(char)!=None
+            return self.children.get(char)!=None
 
         def add(self, char):
             self.end = False
-            newNode = self.__class__()
-            self.node[char] = newNode
+            newChild = self.__class__(char)
+            self.children[char] = newChild
+
+        def remove(self, char):
+            self.end = True
+            self.children[char] = None
 
         def get(self, char):
             if(not self.contains(char)):
                 return -1
-            return self.node[char]
+            return self.children[char]
 
         def isEnd(self):
             return self.end
 
-        def setWord(self):
-            self.word = True
+        def setWord(self,status):
+            self.word = status
 
         def isWord(self):
             return self.word
 
+        def childCnt(self):
+            return len(self.children)
+
+        def getChar(self):
+            return self.char
+
+        def remove(self, char):
+            child_to_delete = self.get(char)
+            child_to_delete.setWord(False)
+            self.children.pop(char)
+            del child_to_delete
+
+        def getChildren(self):
+            return self.children
+
+
 class Trie(object):
 
 	def __init__(self):
-            self.root = _TrieNode()
+            self.root = _TrieNode('')
+            global size
+            self.size = 0
+
+        #Adds a word to the tree
+	def add(self, word):
+            word = word.upper()
+            if(word!=""):
+                self.size+=1
+                self.__recursiveAdd(self.root, word)
 
 	def __recursiveAdd(self, node, word):
             if(len(word)!=0):
                 char = word[0]
                 if(not node.contains(char)):
-                    if(len(word)==1):
-                        node.add(char)
-                    else:
-                        node.add(char)
+                    node.add(char)
                 self.__recursiveAdd(node.get(char), word[1:len(word)])
             else:
-                node.setWord()
+                node.setWord(True)
 
-	def add(self, word):
+
+        def remove(self, word):
             word = word.upper()
             if(word!=""):
-                self.__recursiveAdd(self.root, word)
+                self.size-=1
+                self.__recursiveRemove(self.root,word)
 
+        def __recursiveRemove(self, node, word):
+            if(len(word)!=0):
+                char = word[0]
+                if(not node.contains(char)):
+                    return False
+                remove = self.__recursiveRemove(node.get(char),word[1:len(word)])
+                if(remove):
+                    node.remove(char)
+            else:
+                if(node.childCnt()!=0):
+                    node.setWord(False)
+            if(node.childCnt()==0):
+                return True
+            else:
+                return False
 
-	def __recursiveContains(self, node,word):
+        #Sees if a given string is in the tree
+	def contains(self, word):
+            word = word.upper()
+            if(word==""):
+                return True
+            return self.__recursiveContains(self.root,word)
+
+	def __recursiveContains(self, node, word):
             if(len(word)==0):
                     return True
             char = word[0]
@@ -62,29 +110,33 @@ class Trie(object):
                     return False
             return self.__recursiveContains(node.get(char), word[1:len(word)])
 
-
-
-	def contains(self, word):
-            word = word.upper()
-            if(word==""):
-                return False
-            return self.__recursiveContains(self.root,word)
-
-
-	def wordStatus(self, word):
-            return self.__wordStatus(self.root,word)
-
+        #see if a given string is a word in the tree
         def isWord(self, word):
+            word = word.upper()
             return self.__isWord(self.root,word)
 
         def __isWord(self, node, word):
-            char = word[0]
-            if(not node.contains(char)):
-                return False
             if(len(word)==0):
                 return node.isWord()
             else:
+                char = word[0]
+                if(not node.contains(char)):
+                    return False
                 return self.__isWord(node.get(char), word[1:len(word)])
+
+
+        #Returns the current state/status of a string
+        #0 means it is not a word and it will never be a word
+        #1 means not a word but is a substring of one
+        #2 means it is a word but also a substring of a bigger word
+        #3 means it is a word and it is not a substring of a bigger word
+	def wordStatus(self, word):
+            word = word.upper()
+            if(len(word)!=0):
+                char = word[0]
+                return self.__wordStatus(self.root,word)
+            else:
+                return 1
 
 	def __wordStatus(self, node, word):
             if(len(word)==0):
@@ -99,7 +151,42 @@ class Trie(object):
                     return 1
             char = word[0]
             if(not node.contains(char)):
-                #do not cont7iue
+                #not word or potential word
                 return 0
             return self.__wordStatus(node.get(char), word[1:len(word)])
 
+
+        #prints all the nodes and what they point at with their respective layer
+        '''
+        example of what it looks like
+        layer 1: Root node
+        r o o t => {'B': <Trie._TrieNode object at 0x7fb87dfeb410>, 'M': <Trie._TrieNode object at 0x7fb87dfebe50>}
+        layer 2:
+        B => {'I': <Trie._TrieNode object at 0x7fb87dfeb950>}
+        layer 3:
+        I => {'K': <Trie._TrieNode object at 0x7fb87dfebf10>, 'R': <Trie._TrieNode object at 0x7fb87dfebdd0>}
+        layer 4:
+        K => {'E': <Trie._TrieNode object at 0x7fb87dfebd50>}
+        layer 5:
+        E => {'S': <Trie._TrieNode object at 0x7fb87dfebd90>}
+        layer 4:
+        R => {'P': <Trie._TrieNode object at 0x7fb87dfebe10>}
+        layer 2:
+        M => {'A': <Trie._TrieNode object at 0x7fb87dfebe90>}
+        layer 3:
+        A => {'D': <Trie._TrieNode object at 0x7fb87dfebed0>}
+                                                                         '''
+        def printTree(self):
+            print "layer 1: Root node"
+            print '         r o o t','=>',self.root.children
+            self.__printTree(self.root,1)
+
+
+        def __printTree(self,node,layer):
+            layer+=1
+            for child in node.getChildren():
+                child = node.get(child)
+                if(child.childCnt()!=0):
+                    print "layer",str(layer)+":"
+                    print '        ',child.getChar(),'=>',child.children
+                    self.__printTree(child,layer)
