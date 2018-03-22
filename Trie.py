@@ -166,7 +166,9 @@ class Trie(object):
                     return False
             return self.__recursiveContains(node.get(char), word[1:len(word)])
 
-        #see if a given string is a word in the tree
+        '''
+        see if a given string is a word in the tree
+        '''
         def isWord(self, word):
             word = word.upper()
             return self.__isWord(self.root,word)
