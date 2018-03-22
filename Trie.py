@@ -55,8 +55,9 @@ class Trie(object):
             self.root = _TrieNode('')
             global size
             self.size = 0
-
-        #Adds a word to the tree
+        '''
+        recursively adds a word to the tree
+        '''
 	def add(self, word):
             word = word.upper()
             if(word!=""):
@@ -73,6 +74,24 @@ class Trie(object):
                 node.setWord(True)
 
 
+        '''
+        removes a word and its all its nodes from the tree unless its nodes are used by another word.
+        If another word uses its nodes then the node's status will be adjusted.
+        ex:
+            Words added are 'apple' and 'app'
+            the nodes will have status as shown below
+            a = !isWord, !isEnd
+            p = !isWord, !isEnd
+            p = isWord, !isEnd
+            l = !isWord, !isEnd
+            e = isWord, isEnd
+            After 'app' is removed then all the nodes will still exist but the status will change
+            a = !isWord, !isEnd
+            p = !isWord, !isEnd
+            p = !isWord, !isEnd     previous = isWord, !isEnd
+            l = !isWord, !isEnd
+            e = isWord, isEnd
+        '''
         def remove(self, word):
             word = word.upper()
             if(word!=""):
@@ -95,7 +114,44 @@ class Trie(object):
             else:
                 return False
 
-        #Sees if a given string is in the tree
+
+        '''
+        return a list of all words with the given prefix
+        '''
+        def wordsWithPrefix(self, prefix):
+            prefix = prefix.upper()
+            return self.__wordsWithPrefix(self.root, [], prefix, prefix)
+
+        def __wordsWithPrefix(self, node, words, prefix, originalPrefix):
+            if(len(prefix)==0):
+                return self.__wordsFromNode(node, [], originalPrefix)
+            char = prefix[0]
+            if(not node.contains(char)):
+                return words
+            return self.__wordsWithPrefix(node.get(char), words, prefix[1:len(prefix)], originalPrefix)
+
+        '''
+        prints all the words in the trie as a list
+        '''
+        def asList(self):
+            return self.__wordsFromNode(self.root, [], "")
+
+        '''
+        prints all words from a given node in the tree as they were inserted, is not in order
+        '''
+        def __wordsFromNode(self, node, words, currentWord):
+            if(node.isWord()):
+                words.append(currentWord)
+            for child in node.getChildren():
+                nextWord = currentWord + child
+                nextNode = node.get(child)
+                self.__wordsFromNode(nextNode,words,nextWord)
+            return words
+
+
+        '''
+        Sees if a given string is in the tree
+        '''
 	def contains(self, word):
             word = word.upper()
             if(word==""):
@@ -125,11 +181,13 @@ class Trie(object):
                 return self.__isWord(node.get(char), word[1:len(word)])
 
 
-        #Returns the current state/status of a string
-        #0 means it is not a word and it will never be a word
-        #1 means not a word but is a substring of one
-        #2 means it is a word but also a substring of a bigger word
-        #3 means it is a word and it is not a substring of a bigger word
+        '''
+        Returns the current state/status of a string
+        0 means it is not a word and it will never be a word
+        1 means not a word but is a substring of one
+        2 means it is a word but also a substring of a bigger word
+        3 means it is a word and it is not a substring of a bigger word
+        '''
 	def wordStatus(self, word):
             word = word.upper()
             if(len(word)!=0):
@@ -156,9 +214,10 @@ class Trie(object):
             return self.__wordStatus(node.get(char), word[1:len(word)])
 
 
-        #prints all the nodes and what they point at with their respective layer
         '''
-        example of what it looks like
+        prints all the nodes and what they point at with their respective layer
+
+        example of what it looks like with the contents: birp, bike, bikes, bi, mad
         layer 1: Root node
         r o o t => {'B': <Trie._TrieNode object at 0x7fb87dfeb410>, 'M': <Trie._TrieNode object at 0x7fb87dfebe50>}
         layer 2:
@@ -175,7 +234,7 @@ class Trie(object):
         M => {'A': <Trie._TrieNode object at 0x7fb87dfebe90>}
         layer 3:
         A => {'D': <Trie._TrieNode object at 0x7fb87dfebed0>}
-                                                                         '''
+        '''
         def printTree(self):
             print "layer 1: Root node"
             print '         r o o t','=>',self.root.children

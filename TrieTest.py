@@ -73,17 +73,19 @@ wordStatus('zzzz',0)
 
 
 
-words.printTree()
+words = Trie()
+words.add("incel")
+words.add("into")
+words.add("intro")
+words.add("introduction")
+words.add("enter")
+words.add("apple")
+words.add("ape")
 
-
-
-
-
-
-
-
-
-
+print words.asList()
+print words.wordsWithPrefix("a")
+print words.wordsWithPrefix("int")
+print words.wordsWithPrefix("in")
 
 
 
