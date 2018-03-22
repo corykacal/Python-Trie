@@ -1,3 +1,4 @@
+
 class _TrieNode(object):
 
         def __init__(self,char):
@@ -214,6 +215,47 @@ class Trie(object):
                 #not word or potential word
                 return 0
             return self.__wordStatus(node.get(char), word[1:len(word)])
+
+
+        '''
+        magic methods
+        '''
+        def __contains__(self, word):
+            return self.contains(word)
+
+        def __len__(self):
+            return self.size
+
+        def __getitem__(self,prefix):
+            return self.wordsWithPrefix(key)
+
+        def __hash__(self):
+            #current implimentation is number of nodes on layers 1 and 2
+            #this should be a fairly unique hashcode
+            cnt = 0
+            for child in self.root.getChildren():
+                cnt+=1
+                child = self.root.get(child)
+                for grandchild in child.getChildren():
+                    cnt+=1
+            return cnt
+
+        def __nonzero__(self):
+            if(self.size>0):
+                return True
+            else:
+                return False
+
+        def __sizeof__(self):
+            #psuedo code for future
+            '''
+            get amount of nodes and size of dict
+            compute size of dict in nodes
+            add it to the char in node and anymore data stored
+            '''
+            return 0
+
+
 
 
         '''
