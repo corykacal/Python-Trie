@@ -7,6 +7,7 @@ class _TrieNode(object):
             self.end = True
             self.char = char
             self.children = {}
+            self.childrenCnt = 0
 
         def contains(self, char):
             return self.children.get(char)!=None
@@ -15,10 +16,12 @@ class _TrieNode(object):
             self.end = False
             newChild = self.__class__(char)
             self.children[char] = newChild
+            self.childrenCnt += 1
 
         def remove(self, char):
             self.end = True
             self.children[char] = None
+            self.childrenCnt -= 1
 
         def get(self, char):
             if(not self.contains(char)):
@@ -48,6 +51,9 @@ class _TrieNode(object):
 
         def getChildren(self):
             return self.children
+
+        def hasChildren(self):
+            return self.childrenCnt>0
 
 
 class Trie(object):
@@ -259,37 +265,48 @@ class Trie(object):
 
 
         '''
+        Possibly needs to be updated to be more readable and add isWord indicator or add the word when it is complete
         prints all the nodes and what they point at with their respective layer
 
-        example of what it looks like with the contents: birp, bike, bikes, bi, mad
+        example of what it looks like with the contents: ['APP', 'APPPLE', 'ADD', 'BAD']
         layer 1: Root node
-        r o o t => {'B': <Trie._TrieNode object at 0x7fb87dfeb410>, 'M': <Trie._TrieNode object at 0x7fb87dfebe50>}
+              root => ['A', 'B']
         layer 2:
-        B => {'I': <Trie._TrieNode object at 0x7fb87dfeb950>}
+                 A => ['P', 'D']
+                 B => ['A']
         layer 3:
-        I => {'K': <Trie._TrieNode object at 0x7fb87dfebf10>, 'R': <Trie._TrieNode object at 0x7fb87dfebdd0>}
+                 P => ['P']
+                 D => ['D']
+                 A => ['D']
         layer 4:
-        K => {'E': <Trie._TrieNode object at 0x7fb87dfebd50>}
+                 P => ['P']
+                 D => []
+                 D => []
         layer 5:
-        E => {'S': <Trie._TrieNode object at 0x7fb87dfebd90>}
-        layer 4:
-        R => {'P': <Trie._TrieNode object at 0x7fb87dfebe10>}
-        layer 2:
-        M => {'A': <Trie._TrieNode object at 0x7fb87dfebe90>}
-        layer 3:
-        A => {'D': <Trie._TrieNode object at 0x7fb87dfebed0>}
+                 P => ['L']
+        layer 6:
+                 L => ['E']
+        layer 7:
+                 E => []
         '''
         def printTree(self):
-            print "layer 1: Root node"
-            print '         r o o t','=>',self.root.children
-            self.__printTree(self.root,1)
+            layers = {}
+            printedLayer = "layer 1: Root node\n", '      root','=>',[self.root.get(child).getChar() for child in self.root.children],'\n'
+            layers[1] = printedLayer
+            self.__printTree(self.root,1,layers)
+            for layerNum in layers:
+                layer = layers[layerNum]
+                for token in layer:
+                    print token,
 
 
-        def __printTree(self,node,layer):
+        def __printTree(self,node,layer,layers):
             layer+=1
+            if(layer not in layers and node.hasChildren()):
+                layerTitle = "layer",str(layer)+":\n"
+                layers[layer] = layerTitle
             for child in node.getChildren():
                 child = node.get(child)
-                if(child.childCnt()!=0):
-                    print "layer",str(layer)+":"
-                    print '        ',child.getChar(),'=>',child.children
-                    self.__printTree(child,layer)
+                printedLayer = '        ',child.getChar(),'=>',[child.get(grandchild).getChar() for grandchild in child.getChildren()],'\n'
+                layers[layer] += printedLayer
+                self.__printTree(child,layer,layers)

@@ -88,5 +88,12 @@ print words.wordsWithPrefix("int")
 print words.wordsWithPrefix("in")
 
 
+words = Trie()
 
+words.add('appple')
+words.add('app')
+words.add('add')
+words.add('bad')
 
+print words.asList()
+words.printTree()
