@@ -125,6 +125,8 @@ class Trie(object):
                 remove = self.__recursiveRemove(node.get(char),word[1:len(word)])
                 if(remove):
                     node.remove(char)
+                #else: return false? would this word
+                # slightly more efficient
             else:
                 if(node.childCnt()!=0):
                     node.setWord(False)
