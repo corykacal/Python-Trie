@@ -1,4 +1,8 @@
 
+'''
+The TrieNode class used as a container to abstract code in Trie.
+It uses a dictionary as its container to be effecient.
+'''
 class _TrieNode(object):
 
         def __init__(self,char):
@@ -71,6 +75,9 @@ class Trie(object):
                 self.size+=1
                 self.__recursiveAdd(self.root, word)
 
+        '''
+        The recursive helper for add
+        '''
 	def __recursiveAdd(self, node, word):
             if(len(word)!=0):
                 char = word[0]
@@ -105,17 +112,23 @@ class Trie(object):
                 self.size-=1
                 self.__recursiveRemove(self.root,word)
 
+        '''
+        The recursive helper for remove
+        '''
         def __recursiveRemove(self, node, word):
             if(len(word)!=0):
+                #look foward to possible child node
                 char = word[0]
                 if(not node.contains(char)):
                     return False
+                #remove is set buy the child telling the parent if it gets removed
                 remove = self.__recursiveRemove(node.get(char),word[1:len(word)])
                 if(remove):
                     node.remove(char)
             else:
                 if(node.childCnt()!=0):
                     node.setWord(False)
+            #where the child communicates with the parent
             if(node.childCnt()==0):
                 return True
             else:
@@ -129,6 +142,9 @@ class Trie(object):
             prefix = prefix.upper()
             return self.__wordsWithPrefix(self.root, [], prefix, prefix)
 
+        '''
+        The recursive helper for wordsWithPrefix
+        '''
         def __wordsWithPrefix(self, node, words, prefix, originalPrefix):
             if(len(prefix)==0):
                 return self.__wordsFromNode(node, [], originalPrefix)
@@ -165,6 +181,9 @@ class Trie(object):
                 return True
             return self.__recursiveContains(self.root,word)
 
+        '''
+        The recursive helper for contains
+        '''
 	def __recursiveContains(self, node, word):
             if(len(word)==0):
                     return True
@@ -180,6 +199,9 @@ class Trie(object):
             word = word.upper()
             return self.__isWord(self.root,word)
 
+        '''
+        The recursive helper for isWord
+        '''
         def __isWord(self, node, word):
             if(len(word)==0):
                 return node.isWord()
@@ -205,6 +227,9 @@ class Trie(object):
             else:
                 return 1
 
+        '''
+        The recursive helper for wordStatus
+        '''
 	def __wordStatus(self, node, word):
             if(len(word)==0):
                 if(node.isEnd()):
@@ -300,6 +325,9 @@ class Trie(object):
                     print token,
 
 
+        '''
+        The recursive helper for printTree
+        '''
         def __printTree(self,node,layer,layers):
             layer+=1
             if(layer not in layers and node.hasChildren()):
